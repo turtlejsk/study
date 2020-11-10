@@ -26,130 +26,131 @@
 
 ## 1.3. Process
 
-> A process is a program in execution
-### 1.3.1. Program
-- Program은 실행파일(.exe)
-### 1.3.2. Process
-- Instance : Program을 실행 시키는 실행 주체
-- Process는 Program을 실행했을 때 CPU를 차지하면서 수행하는 수행 주체.
-- Process는 프로세서에 의해 수행되는 프로그램 단위로 현재 실행 중이거나 곧 실행 가능한 PCB을 가진 프로그램
-- Process 목록을 보기 위해선 ps -el을 실행하면 된다.
-- **Process는 수행과 스케줄링의 가장 기본 단위이다.**
-  
-구조|설명
-:----:|:---:
-Stack|동적할당 메모리
-Heap|동적할당 메모리
-Data|전역변수
-Text|컴파일된 코드
+  > A process is a program in execution
+  ### 1.3.1. Program
+  - Program은 실행파일(.exe)
+  ### 1.3.2. Process
+  - Instance : Program을 실행 시키는 실행 주체
+  - Process는 Program을 실행했을 때 CPU를 차지하면서 수행하는 수행 주체.
+  - Process는 프로세서에 의해 수행되는 프로그램 단위로 현재 실행 중이거나 곧 실행 가능한 PCB을 가진 프로그램
+  - Process 목록을 보기 위해선 ps -el을 실행하면 된다.
+  - **Process는 수행과 스케줄링의 가장 기본 단위이다.**
+    
+  구조|설명
+  :----:|:---:
+  Stack|동적할당 메모리
+  Heap|동적할당 메모리
+  Data|전역변수
+  Text|컴파일된 코드
 
-- Heap은 프로세스가 돌아가는 런타임에 변수, 객체의 크기를 알려줌으로써 영역을 확보
-- Stack은 컴파일 타임에 지역변수나 매개 변수가 차지하는 공간
+  - Heap은 프로세스가 돌아가는 런타임에 변수, 객체의 크기를 알려줌으로써 영역을 확보
+  - Stack은 컴파일 타임에 지역변수나 매개 변수가 차지하는 공간
 
-- Process가 다른 Process를 생성할 때 두가지 경우가 있다.
-  1.  부모 Process가 자식 Process와 동시에 실행되는 경우
-  2.  부모 Process가 자식 Process가 실행을 끝낼 때까지 기다리는 경우
+  - Process가 다른 Process를 생성할 때 두가지 경우가 있다.
+    1.  부모 Process가 자식 Process와 동시에 실행되는 경우
+    2.  부모 Process가 자식 Process가 실행을 끝낼 때까지 기다리는 경우
 
-OS p.118
-```C
-#include <sys/types.h>
-#include <stdio.h>
-#include <unistd.h>
-  int main()
-{
-  pid t pid;
-  /* fork a child process */
-  pid = fork();
-  if (pid < 0) { 
-    /* error occurred */
-    fprintf(stderr, "Fork Failed");
-  return 1;
+  OS p.118
+  ```C
+  #include <sys/types.h>
+  #include <stdio.h>
+  #include <unistd.h>
+    int main()
+  {
+    pid t pid;
+    /* fork a child process */
+    pid = fork();
+    if (pid < 0) { 
+      /* error occurred */
+      fprintf(stderr, "Fork Failed");
+    return 1;
+    }
+    else if (pid == 0) { /* child process */
+      /*생성된 자식 프로세스는 pid를 초기화 하지 않았기 때문에 pid가 0이 된다.*/
+      execlp("/bin/ls","ls",NULL);
+    }
+    else { /* parent process */
+      /* parent will wait for the child to complete */
+      wait(NULL);
+      printf("Child Complete");
+    }
+    return 0;
   }
-  else if (pid == 0) { /* child process */
-    /*생성된 자식 프로세스는 pid를 초기화 하지 않았기 때문에 pid가 0이 된다.*/
-    execlp("/bin/ls","ls",NULL);
-  }
-  else { /* parent process */
-    /* parent will wait for the child to complete */
-    wait(NULL);
-    printf("Child Complete");
-  }
-  return 0;
-}
-```
+  ```
 
-#### 1.3.2.1. Process의 상태
-> *new : The process is being created.*
+  #### 1.3.2.1. Process의 상태
+  > *new : The process is being created.*
 
-> *terminated : The process has finished execution.*
+  > *terminated : The process has finished execution.*
 
-> *running : Instructions are being executed*
+  > *running : Instructions are being executed*
 
->  *waiting : The process is waiting for some event to occur*
+  >  *waiting : The process is waiting for some event to occur*
 
-> *ready : The process is waiting to be assigned to a process*
+  > *ready : The process is waiting to be assigned to a process*
 
-- new: 운영체제가 process를 만들 때 임시적으로 있는 state
-- running: CPU에서 수행 되고 있는 상태
-- ready: CPU에 다른 process가 돌고 있기 때문에 기다리는 상태
-- waiting: I/O 또는 다른 이벤트가 발생하기를 기다리는 상태
+    - new: 운영체제가 process를 만들 때 임시적으로 있는 state
+    - running: CPU에서 수행 되고 있는 상태
+    - ready: CPU에 다른 process가 돌고 있기 때문에 기다리는 상태
+    - waiting: I/O 또는 다른 이벤트가 발생하기를 기다리는 상태
 
-- Process termination
-  - 부모 프로세스는 여러 이유로 자식 프로세스를 강제 종료할 수 있다.
-    1. 자식 프로세스가 할당 된 자원을 초과해서 사용할 경우
-    2. 자식 프로세스에게 할당 된 task가 더 이상 필요하지 않을 경우
-    3. 부모 프로세스를 종료 할 경우
-  - Cascading termination
-    - 부모 프로세스를 종료 할 경우, 모든 자식 프로세스를 먼저 종료한 후에 종료한다. 
-    - Zombie process : 자식 프로세스가 끝났지만, 부모 프로세스에서 자식 프로세스의 종료상태를 회수하지 않은 경우
-    - Orphan process : 부모 프로세스가 끝났지만, 자식 프로세스를 종료하지 않은 경우
+    - Process termination
+      - 부모 프로세스는 여러 이유로 자식 프로세스를 강제 종료할 수 있다.
+        1. 자식 프로세스가 할당 된 자원을 초과해서 사용할 경우
+        2. 자식 프로세스에게 할당 된 task가 더 이상 필요하지 않을 경우
+        3. 부모 프로세스를 종료 할 경우
+   
+      - Cascading termination
+        - 부모 프로세스를 종료 할 경우, 모든 자식 프로세스를 먼저 종료한 후에 종료한다. 
+        - Zombie process : 자식 프로세스가 끝났지만, 부모 프로세스에서 자식 프로세스의 종료상태를 회수하지 않은 경우
+        - Orphan process : 부모 프로세스가 끝났지만, 자식 프로세스를 종료하지 않은 경우
 
 
-#### 1.3.2.2. PCB
-> 운영체제가 프로세스를 제어하기 위해 정보를 저장해 놓는 곳으로, 프로세스의 상태 정보를 저장하는 구조체
-> 프로세스 상태 관리와 Context switching을 위해 필요하다.
-> PCB는 프로세스 생성 시 만들어지며 주기억장치에 유지된다.
+  #### 1.3.2.2. PCB
+    > 운영체제가 프로세스를 제어하기 위해 정보를 저장해 놓는 곳으로, 프로세스의 상태 정보를 저장하는 구조체
+    > 프로세스 상태 관리와 Context switching을 위해 필요하다.
+    > PCB는 프로세스 생성 시 만들어지며 주기억장치에 유지된다.
 
-##### 1.3.2.2.1. PCB에 유지되는 정보
-1. PID: 프로세스의 고유 번호
-2. 상태: 준비, 대기, 실행 등의 상태
-3. 포인터: 다음 실행될 프로세스의 포인터
-4. Register save area: 레지스터 관련 정보
-5. Priority: 스케줄링 및 프로세스 우선순위
-6. 할당된 자원 정보
-7. Account: CPU 사용시간, 실제 사용된 시간
-8. 입출력 상태 정보
+  ##### 1.3.2.2.1. PCB에 유지되는 정보
+    1. PID: 프로세스의 고유 번호
+    2. 상태: 준비, 대기, 실행 등의 상태
+    3. 포인터: 다음 실행될 프로세스의 포인터
+    4. Register save area: 레지스터 관련 정보
+    5. Priority: 스케줄링 및 프로세스 우선순위
+    6. 할당된 자원 정보
+    7. Account: CPU 사용시간, 실제 사용된 시간
+    8. 입출력 상태 정보
 
-#### 1.3.2.3. Context Switching
-- 프로세스를 실행하는 과정의 프로세스 정보는 CPU 내의 레지스터에 저장하고 있다.
-- Swapping
-- PCB에 수행되던 레지스터 값들이 저장된다.
+  #### 1.3.2.3. Context Switching
+    - 프로세스를 실행하는 과정의 프로세스 정보는 CPU 내의 레지스터에 저장하고 있다.
+    - Swapping
+    - PCB에 수행되던 레지스터 값들이 저장된다.
 
-#### 1.3.2.4. IPC(Inter-Process Communication)
-- Cooperating process 사이에서 데이터를 주고 받는 행위
-  
+  #### 1.3.2.4. IPC(Inter-Process Communication)
+    - Cooperating process 사이에서 데이터를 주고 받는 행위
+    
   ##### 1.3.2.4.1. Cooperating process를 사용하는 이유
-  1. Information sharing
-  2. Computation speedup
-  3. Modularity
-  4. Convenience
+      1. Information sharing
+      2. Computation speedup
+      3. Modularity
+      4. Convenience
 
   ##### 1.3.2.4.2. Message passing
-     - OS가 memory protection을 위해 대리 전달해주는 것
-     - 안전하고 동기화 문제가 없다.
-     - 성능면에서 떨어진다.
-     - Direct/Indirect Communication이 있다.
-       - Direct communitaion은 커널에 메시지를 직접 주고 커널이 직접 전달하는 방식
-       - Indirect communication은 커널의 메시지 박스에 메시지를 넣어놓고 다른 프로세스가 확인하는 방식
-  
+      - OS가 memory protection을 위해 대리 전달해주는 것
+      - 안전하고 동기화 문제가 없다.
+      - 성능면에서 떨어진다.
+      - Direct/Indirect Communication이 있다.
+        - Direct communitaion은 커널에 메시지를 직접 주고 커널이 직접 전달하는 방식
+        - Indirect communication은 커널의 메시지 박스에 메시지를 넣어놓고 다른 프로세스가 확인하는 방식
+    
   ##### 1.3.2.4.3. Shared Memory
-  - 두 프로세스 간의 공유된 메모리를 생성 후 이용
-  - 동기화 문제 발생 가능성 있음
-  
+    - 두 프로세스 간의 공유된 메모리를 생성 후 이용
+    - 동기화 문제 발생 가능성 있음
+    
   ##### 1.3.2.4.4. 생산자-소비자 문제
-  - 일반적으로 생산자가 정보를 생산하는 속도가 소비하는 속도보다 빠르기 때문에 발생하는 문제
-  - 사용되는 버퍼가 무한한 경우(Unbounded buffer) : 버퍼 크기의 제한이 없기 때문에 생산자는 계속해서 새로운 정보를 제공할 수 있다.
-  - 사용되는 버퍼가 유한한 경우(Bounded buffer) : 버퍼의 크기에 제한이 있어 생산자가 정보를 제공할 때, 버퍼의 용량을 확인하고 대기해야할 가능성이 있다.
+    - 일반적으로 생산자가 정보를 생산하는 속도가 소비하는 속도보다 빠르기 때문에 발생하는 문제
+    - 사용되는 버퍼가 무한한 경우(Unbounded buffer) : 버퍼 크기의 제한이 없기 때문에 생산자는 계속해서 새로운 정보를 제공할 수 있다.
+    - 사용되는 버퍼가 유한한 경우(Bounded buffer) : 버퍼의 크기에 제한이 있어 생산자가 정보를 제공할 때, 버퍼의 용량을 확인하고 대기해야할 가능성이 있다.
 
 ## 1.4. Thread
   ### 1.4.1. Multi-Threading의 장점
@@ -171,13 +172,44 @@ OS p.118
   ### 1.5.1. CPU burst & I/O burst
     - CPU burst: CPU 명령을 실행하는 시간 / CPU burst가 큰 프로세스 = CPU bound process
     - I/O burst: I/O를 요청한 후, 기다리는 시간 / I/O burst가 큰 프로세스 = I/O bound process
+    - 사용자와 interactive한 작업들은 I/O burst가 크다.
 
   ### 1.5.2. Scheduling criteria
-  1. 
-  2. second
-  3. thrid
+    1. CPU utilization
+    2. Throughput
+    3. Turnaround time
+    4. Waiting time
+    5. Response time
 
+  ### 1.5.3. FCFS
+    - 앞에 있는 프로세스가 처리 시간이 길다면 전체 waiting time이 길어진다.
+    - (=Convoy effect)
+  
+  ### 1.5.4. SJF(Shortest Job First)
+    - waiting time이 짧다는 장점이 있다.(CPU burst가 가장 작은 것을 먼저 수행한다.)
+    - Non-preemptive 하다. (=프로세스 처리 중간에 중단할 수 없다.)
+    - 프로세스가 얼마만큼의 CPU burst를 갖는지 미리 알 수 없기 때문에 실제로 적용하기 어렵다.
 
+  ### 1.5.5. SRTF(Shortest Remaining Time First)
+    - SJF와 같지만 수행시키던 프로세스를 중단시키고 다른 프로세스를 실행할 수 있다.
+
+  ### 1.5.6. Priority Scheduling
+    - 프로세스의 중요도를 기준으로 우선순위 부여
+    - starvation이라는 단점이 존재한다. (무한히 기다리는 것)
+    - aging을 통해 starvation을 해결한다.
+
+  ### 1.5.7. Round-Robin
+    - Time-quantum을 정하고 time-quantum마다 context switching을 통해 프로세스를 바꿔서 처리한다.
+    - 적절한 quantum size가 중요하다. CPU burst의 80%를 커버할 수 있을 정도로 설정
+
+  ### Multilevel Queue
+    - 어떤 프로세스냐에 따라서 여러 종류의 그룹으로 나누고 여러 개의 큐에 다양한 알고리즘을 적용
+
+  ### Multilevel Feedback Queue
+    - 첫 queue의 Time quantum을 초과한 프로세스는 다음 queue로 넘겨진다.
+    - 마지막 queue는 FCFS방식으로 처리된다.
+    - 사용자와 interactive하지 않은 background의 프로세스는 CPU burst가 매우 크다는 특징을 이용
+  
 ## 1.6. DeadLock
 
 > Deadlock은 다양한 유형의 자원을 대상으로 경쟁하는 여러 프로세스 때문에 발생한다.
