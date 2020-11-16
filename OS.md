@@ -249,9 +249,122 @@
   ## 2.4. TCP와 UDP의 공통점
     1. 포트번호를 이용하여 주소를 지정한다.
     2. 데이터 오류 검사를 위한 checksum이 존재한다.
+    
 
   ## 2.5. TCP와 UDP의 차이점
     1. 연결형/비연결형
     2. 데이터의 경계를 구분한다/하지 않는다.
     3. 신뢰성 있는/없는 데이터 전송(데이터의 재전송)
     4. 일대일/일대일, 일대다, 다대다 통신
+
+  ## 2.6. HTTP protocol
+    - 웹 상에서 클라이언트와 서버 간의 요청/응담으로 정보를 주고 받을 수 있는 프로토콜
+    - TCP와 UDP를 사용하며 80번 포트를 사용한다.
+      - 비연결: 클라이언트가 요청을 서버에 보내고 서버가 적절한 응답을 클라이언트에 보내면 바로 연결이 끊긴다.
+      - 무상태: 연결을 끊는 순간 클라이언트와 서버의 통신은 끝나며 상태 정보를 유지하지 않는다.
+
+  ## 2.7. HTTPS
+    - 443번 포트
+    - 소켓 통신에서 일반 텍스트를 이용하는 대신에, 웹 상에서 정보를 암호화하는 SSL이나 TLS 프로토콜을 통해 세션 데이터를 암호화한다.
+    - 기밀성, 데이터 무결성, ID 및 디지털 인증서를 사용한 인증을 제공
+    - 공개키 암호화
+      - 공개키: 모두에게 공개
+      - 개인키: 개인에게만 공개 
+  
+  ## 2.8. HTTP 헤더 내 Entity Header 항목
+    1. Content-Type: MIME 미디어 타입, 인코딩 방식 (Content-Type: text/html; charset-latin-1)
+    2. Content-Language: 해당 개체와 가장 잘 어울리는 사용자 언어
+    3. Content-Encoding: 해당 개체의 데이터 압축 방식 (Content-Encoding: gzip, deflate)
+    4. Content-Length: 전달되는 해당 개체의 바이트 길이 또는 크기
+    5. Content-Location: 해당 개체의 실제 위치
+    6. Content-Disposition: 응답 Body를 브라우저가 어떻게 표시해야하는지 (inline이면 웹화면에 표시, attachment인 경우 다운로드)
+    7. ...
+
+  ## 2.9. HTTP 헤더 내 Request Header 항목
+    1. Host: 요청하는 호스트에 대한 호스트명 및 포트번호
+    2. User-Agent: 클라이언트 소프트웨어(브라우저, OS)
+    3. From: 클라이언트 사용자 메일 주소
+    4. Cookie: 서버에 의해 Set-Cookie로 클라이언트에게 설정된 쿠키 정보
+    5. Referer: 바로 직전에 머물렀던 웹 링크 주소
+    6. ...
+
+  ## 2.10. HTTP 헤더 내 Response Header 항목
+    1. Server: 서버 소프트웨어 정보
+    2. Accept-Range
+    3. Set-Cookie: 서버 측에서 클라이언트에게 세션 쿠키 정보 설정
+    4. Expires: 리소스가 지정된 일시까지 유효
+    5. ...
+
+  ## 2.11. HTTP 동작 과정
+  > 서버 접속 -> 클라이언트 -> 요청 -> 서버 -> 응답 -> 클라이언트 -> 연결 종료
+
+    1. 사용자가 웹 브라우저에 URL 주소 입력
+    2. DNS 서버에서 웹 서버의 호스트 이름을 IP 주소로 변경 요청
+    3. 웹 서버와 TCP 연결 시도 (3 way handshaking)
+    4. 클라이언트가 서버에게 요청
+      - HTTP Request Message = Request Header + 빈줄 + Request Body
+      - Request Header
+        + 요청 메소드 + URI + HTTP 프로토콜 버전
+        + ex) GET /background.png HTTP/1.0 || POST / HTTP 1.1
+        + GET, HEAD, DELETE, OPTIONS 처럼 리소스를 가져오는 요청은 바디 미포함
+    5. 서버가 클라이언트에게 데이터 응답
+      - HTTP Response Message = Response Header + 빈줄 + Response Body
+        + HTTP 프로토콜 버전 + 응답 코드 + 응답 메세지
+        + ex) HTTP/1.1 404 Not Found
+    6. 서버 클라이언트 간 연결 종료
+    7. 웹 브라우저가 웹 문서 출력
+
+  ## 2.12. HTTPS 동작 과정
+    1. 클라이언트가 서버에 접속하여 Handshaking 과정에서 서로 탐색
+       1. Client Hello
+          - 클라이언트가 서버에게 전송할 데이터
+            + 클라이언트 측에서 생성한 랜덤 데이터
+            + C/S 암호화 방식 통일을 위해 클라이언트가 사용할 수 있는 암호화 방식
+            + 기존 세션을 재활용하기 위한 세션 아이디
+       2. Server Hello
+          - Client Hello에 대한 응답으로 전송할 데이터
+            + 서버 측에서 생성한 랜덤 데이터
+            + 서버가 선택한 클라이언트의 암호화 방식
+            + SSL 인증서
+       3. Client 인증 확인
+          - 서버로부터 받은 인증서가 CA에 의해 발급되었는지 목록에서 확인하고 CA 공개키로 인증서 복호화
+          - 랜덤 데이터를 조합하여 pre master secret 값 생성(대칭키 암호화에 사용할 키)
+          - pre master secret 값을 공개키로 서버에 전달
+          - session key 생성
+       4. Server 인증 확인
+          - 서버는 비공개키로 복호화해 pre master secret 값 취득
+          - session key 생성
+       5. Handshaking 종료
+
+    2. 데이터 전송
+       1. 서버와 클라이언트는 session key를 활용해 데이터를 암호화해 데이터 송수신
+    3. 연결 종료 및 session key 폐기
+
+  ## 2.13. GET POST Method
+    - HTTP 프로토콜을 이용해 서버에 데이터(요청 정보)를 전달할 때 사용하는 방식
+  
+    ### GET Method
+      - 정보를 조회하기 위한 method
+      - 서버에서 데이터를 가져와서 보여주기 위한 method
+      - Select
+      - URL 끝에 ? 와 함께 key=value 쌍으로 요청 정보 전송
+      - URL에 요청 정보를 붙여서 전송
+      - 대용량 데이터 전송이 힘들다(parameter 길이 제한)
+      - 보안상 취약하다
+      - Body는 비어있다.
+      - POST 방식보다 빠르다. (caching을 사용하기 때문)
+
+    ### POST Method
+      - 서버의 값이나 상태를 바꾸기 위한 method
+      - Insert/Update/Delete
+      - HTTP 패킷의 body안에 요청 정보를 숨겨서 전송
+      - Request Header의 Content-Type에 해당 데이터 타입이 표현 됨
+        - Default: application/octet-stream
+        - Text: text/plain
+        - File: multipart/form-date
+      - 대용량 데이터 전송에 적합
+      - 보안상 안전하다.
+
+
+
+
