@@ -404,5 +404,52 @@
        - Cookie: 클라이언트에 저장되어서 서버에 요청시 빠르다.
        - Session: 실제 저장된 정보가 서버에 있으므로 서버의 처리가 필요해 쿠키보다 느리다.
 
+  ## 2.15. REST와 RESTful
+  
+  ### 2.15.1. REST
+    - REpresentational State Transfer
+    - Client와 Server 사이의 통신 방식, 아키텍쳐 스타일
+    - HTTP URI를 통해 자원을 명시하고, HTTP Method를 통해 해당 자원에 대한 CRUD 작업을 적용하는 것
+    - ROA(Resource Oriented Architecture)
+
+  #### 2.15.1.1. REST의 장단점
+  ##### 2.15.1.1.1. 장점
+    - 서비스 디자인에서 생길 수 있는 문제를 최소화해준다.
+    - Hypermedia API의 기본을 충실히 지키면서 범용성을 보장한다.
+    - HTTP protocol의 표준을 최대한 활용하여 여러 추가적인 장점을 함께 가져갈 수 있게 해준다.
+
+  ##### 2.15.1.1.2. 단점
+    - 브라우저를 통해 테스트할 일이 많은 서비스라면 쉽게 고칠 수 있는 URL보다 Header 값이 더 어렵게 느껴진다.
+    - 구형 브라우저가 아직 제대로 지원해주지 못하는 부분이 존재한다.
+
+  #### 2.15.1.2. REST의 구성요소
+    1. 자원: URI
+       - 모든 자원에는 고유한 ID가 존재하고 이 자원들은 Server에 존재한다.
+       - 자원을 구별하는 ID는 '/groups/:group_id'와 같은 HTTP URI 다.
+       - 클라이언트는 URI를 이용해서 자원을 지정하고 해당 자원의 상태에 대한 조작을 서버에 요청한다.
+    2. 행위: HTTP Method
+       - HTTP protocol의 Method를 사용한다.
+       - GET, POST, PUT, DELETE, HEAD
+    3. 표현
+       - client가 자원의 상태에 대한 조작을 요청하면 Server는 이에 적절한 응답을 보낸다.
+       - REST에서 자원은 JSON, XML, TXT, RSS 등 여러 형태로 나타내어 질 수 있다.
+
+  #### 2.15.1.3. REST의 특징
+    1. Server-Client
+    2. Stateless
+    3. Cacheable
+    4. Layered System
+    5. Code On Demand
+    6. Uniform Interface
+
+  ### 2.15.2. RESTful
+    - RESTful은 REST 아키텍처를 구현하는 웹서비스(REST원리를 따르는 시스템)
+    - REST API를 만드는 것
+    - 퍼포먼스 향상이 목적이 아닌 일관된 컨벤션을 통한 API의 이해도 및 호환성을 높이는 것이 목적
+  
+
+
+
+
 
 
