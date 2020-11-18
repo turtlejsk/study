@@ -447,7 +447,68 @@
     - REST API를 만드는 것
     - 퍼포먼스 향상이 목적이 아닌 일관된 컨벤션을 통한 API의 이해도 및 호환성을 높이는 것이 목적
   
+## 2.16. Data structure
 
+### 2.16.1. HashTable
+  - Key를 Hash Function을 통해 Hash로 바꾸고 그 값을 index로 활용
+  - Hash 충돌이 발생할 경우
+    1. Separating Chaining: LinkedList 또는 Red Black Tree 사용
+    2. Open addressing: 추가 메모리 공간을 사용하지 않고 HashTable 배열의 빈공간을 사용 (ex) Linear Probing, Double Hashing)
+    3. Resizing: 저장공간의 75%가 채워지면 배열 크기를 두배로 확장
+
+#### 2.16.1.1. HashTable의 장점
+  - 적은 리소스로 많은 데이터를 효율적으로 관리 가능
+  - 배열의 인덱스를 사용하기 때문에 검색, 삽입, 삭제가 빠름
+  - Key와 Hash의 연관성이 없어서 보안 유리
+  - 중복 제거 유용
+
+#### 2.16.1.2. HashTable의 단점
+  - 충돌 발생 가능성
+  - 공간 복잡도 증가
+  - 순서 무시
+
+#### 2.16.1.3. HashMap VS HashTable
+  - Key-Value 쌍을 이용한다는 것은 동일
+  - HashTable
+    - 비동기(단일 스레드)에서 사용
+    - null값 허용
+    - 보조 Hash Function과 Seperating Chaining을 사용해서 비교적 충돌이 덜 발생
+  - HashMap
+    - 동기(멀티 스레드)에서 사용
+    - null값 미허용
+
+### 2.16.2. Tree
+
+#### 2.16.2.1. Tree의 개념
+- 트리에는 사이클이 존재할 수 없다.
+- 노드들은 특정 순서로 나열될 수도 있고 그렇지 않을 수도 있다.
+- 비선형 자료구조이다.
+- 사이클이 없는 Connected Graph이다.
+- Directed Acyclic Graph
+- 계층 모델이다.
+- 노드가 N개라면 간선은 N-1개를 갖는다.
+- 모든 자식 노드는 한 개의 부모 노드를 갖는다.
+
+#### 2.16.2.2. Red-Black Tree
+- Binary Search Tree의 일종
+- 균형잡힌 트리: 높이가 O(logn)
+- 연산을 최악의 경우에도 O(logn)에 지원
+- 각 노드는 Key, Left, Right, Parent를 저장
+- 자식이 존재하지 않는 경우 NIL노드(모든 Leaf노드는 NIL 노드)
+- 루트노드는 Black
+- 모든 NIL 노드는 Black
+- 모든 Red 노드의 자식은 Black
+- 모든 노드에 대하여 그 노드로부터 Leaf노드에 이르는 모든 경로에는 동일한 개수의 Black 노드가 존재한다.
+
+##### 2.16.2.2.1. Red-Black Tree의 높이
+- 노드 x의 높이는 자신으로부터 Leaf노드까지의 가장 긴 경로에 포함된 Edge의 갯수이다.
+- 블랙 높이는 x로부터 Leaf노드까지의 경로상에 Black노드의 갯수이다.
+- bh(x) >= (h/2)
+- 임의의 서브 트리는 적어도 2^bh(x) - 1개의 내부 노드를 갖는다.
+
+#### 2.16.2.3. RB Tree의 Balancing
+  - Double Red가 발생 했을 때, uncle 노드의 색에 따라 balancing한다.
+  - Black일 때는 Restructuring, Red일 때는 Recoloring
 
 
 
